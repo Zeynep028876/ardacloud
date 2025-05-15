@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Demo Koleji - Eğitim Platformu</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            background: linear-gradient(to bottom, #e3f2fd, #bbdefb);
+            overflow-x: hidden;
+            transition: background 0.3s;
+        }
+        body.dark-mode {
+            background: linear-gradient(to bottom, #1A1A1A, #2D3748);
+            color: #E2E8F0;
+        }
+        .ana-icerik {
+            padding: 30px;
+            min-height: 100vh;
+        }
+        #dark-mode-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #bbdefb;
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 1001;
+        }
+        .chatbot-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 300px;
+            height: 400px;
+            background: #fff;
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            z-index: 1001;
+            animation: slideInChat 0.5s ease;
+            transition: background 0.3s;
+        }
+        .dark-mode .chatbot-container {
+            background: #2D3748;
+        }
+        .chatbot-header {
+            background: #2196f3;
+            color: white;
+            padding: 10px;
+            text-align: center;
+            font-size: 1.2rem;
+        }
+        .chatbot-body {
+            flex: 1;
+            padding: 10px;
+            overflow-y: auto;
+            background: #f9f9f9;
+        }
+        .dark-mode .chatbot-body {
+            background: #4A5568;
+        }
+        .chatbot-message {
+            margin: 10px 0;
+            padding: 8px 12px;
+            border-radius: 5px;
+            max-width: 80%;
+        }
+        .chatbot-message.user {
+            background: #90caf9;
+            color: #333;
+            margin-left: auto;
+        }
+        .chatbot-message.bot {
+            background: #bbdefb;
+            color: #333;
+        }
+        .chatbot-input {
+            display: flex;
+            padding: 10px;
+            background: #fff;
+            border-top: 1px solid #ddd;
+        }
+        .dark-mode .chatbot-input {
+            background: #2D3748;
+            border-top-color: #718096;
+        }
+        .chatbot-input input {
+            flex: 1;
+            padding: 5px;
+            border: 1px solid #2196f3;
+            border-radius: 5px 0 0 5px;
+            outline: none;
+        }
+        .chatbot-input button {
+            padding: 5px 10px;
+            background: #32cd32;
+            color: white;
+            border: none;
+            border-radius: 0 5px 5px 0;
+            cursor: pointer;
+        }
+        @keyframes slideInChat {
+            from { transform: translateY(50px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .panel-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        .header {
+            background-color: #007bff;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+        }
+        .header img {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 2px solid white;
+        }
+        .header-nav {
+            display: flex;
+            gap: 15px;
+        }
+        .header-nav a {
+            color: white;
+            text-decoration: none;
+            font-weight: 500;
+            padding: 8px 15px;
+            border-radius: 5px;
+            transition: background-color 0.3s;
+        }
+        .header-nav a:hover {
+            background-color: #0056b3;
+        }
+        .status-buttons {
+            display: flex;
+            gap: 10px;
+        }
+        .status-button {
+            padding: 8px 15px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background-color 0.3s;
+        }
+        .status-button:hover {
+            background-color: #218838;
+        }
+        .panel-content {
+            padding: 30px;
+        }
+        .tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            border-bottom: 2px solid #ddd;
+        }
+        .tab-button {
+            padding: 10px 20px;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 5px 5px 0 0;
+            transition: background-color 0.3s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .tab-button.active {
+            background-color: #007bff;
+            color: white;
+        }
+        .tab-button svg {
+            width: 20px;
+            height: 20px;
+        }
+        .tab-button.ana-sayfa { background-color: #28a745; }
+        .tab-button.ana-sayfa:hover { background-color: #218838; }
+        .tab-button.pdf-fasikuller { background-color: #dc3545; }
+        .tab-button.pdf-fasikuller:hover { background-color: #c82333; }
+        .tab-button.kitaplik { background-color: #ffc107; }
+        .tab-button.kitaplik:hover { background-color: #e0a800; }
+        .tab-button.videolar { background-color: #17a2b8; }
+        .tab-button.videolar:hover { background-color: #138496; }
+        .tab-button.quizler { background-color: #6f42c1; }
+        .tab-button.quizler:hover { background-color: #5a32a3; }
+        .tab-button.market { background-color: #fd7e14; }
+        .tab-button.market:hover { background-color: #e06c00; }
+        .tab-button.ogretmen-paneli { background-color: #e83e8c; }
+        .tab-button.ogretmen-paneli:hover { background-color: #d63384; }
+        .tab-button.etkinlik-atolyem { background-color: #6610f2; }
+        .tab-button.etkinlik-atolyem:hover { background-color: #520dc2; }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        h2, h3 {
+            color: #333;
+            border-bottom: 2px solid #007bff;
+            padding-bottom: 5px;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            max-width: 500px;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 14px;
+        }
+        textarea {
+            resize: vertical;
+        }
+        .content-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin: 20px 0;
+        }
+        .content-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            text-align: center;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .content-card:hover {
+            transform: translateY(-5px);
+        }
+        .content-card img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+            margin-bottom: 10px;
+        }
+        .content-card h4 {
+            margin: 0;
+            color: #333;
+        }
+        .content-card p {
+            color: #777;
+            font-size: 14px;
+            margin: 5px 0;
+        }
+        .dark-mode .content-card {
+            background-color: #4A5568;
+        }
+        .dark-mode .content-card h4 {
+            color: #E2E8F0;
+        }
+        .dark-mode .content-card p {
+            color: #CBD5E0;
+        }
+        .pdf-viewer {
+            display: none;
+            margin-top: 20px;
+            border: 2px solid #007bff;
+            border-radius: 5px;
+            overflow: hidden;
+        }
+        .pdf-viewer.active {
+            display: block;
+        }
+        .pdf-viewer iframe {
+            width: 100%;
+            height: 600px;
+            border: none;
+        }
+        .summary {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+        .dark-mode .summary {
+            background-color: #4A5568;
+        }
+        .summary p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+        .summary .total {
+            font-weight: bold;
+            color: #007bff;
+        }
+        .summary .discount {
+            color: #28a745;
+        }
+        button {
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        .action-buttons button:nth-child(1) {
+            background-color: #28a745;
+        }
+        .action-buttons button:nth-child(1):hover {
+            background-color: #218838;
+        }
+        .report-table, .product-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        .report-table th, .report-table td,
+        .product-table th, .product-table td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        .report-table th, .product-table th {
+            background-color: #f8f9fa;
+        }
+        .dark-mode .report-table th, .dark-mode .product-table th {
+            background-color: #4A5568;
+        }
+        .etkinlik-section {
+            display: none;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 0 0 10px 10px;
+            animation: fadeIn 0.5s ease;
+        }
+        .etkinlik-section.active {
+            display: block;
+        }
+        .etkinlik-content-box {
+            background-color: #bbdefb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .dark-mode .etkinlik-content-box {
+            background-color: #4A5568;
+        }
+        .etkinlik-row {
+            display: flex;
+            gap: 20px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .etkinlik-video-box, .etkinlik-text-box {
+            flex: 1;
+            min-width: 300px;
+        }
+        .etkinlik-video-box iframe {
+            width: 100%;
+            height: 200px;
+            border-radius: 5px;
+        }
+        .etkinlik-text-box p {
+            margin: 0;
+        }
+        .etkinlik-image-text-quiz-box {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+        .etkinlik-image-text-quiz-box img {
+            width: 200px;
+            border-radius: 5px;
+        }
+        .etkinlik-image-text-quiz-box .text {
+            flex: 1;
+            min-width: 200px;
+        }
+        .etkinlik-quiz-box {
+            margin-top: 20px;
+        }
+        .etkinlik-quiz-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 10px 0;
+            padding: 10px;
+            background-color: #fff;
+            border: 1px solid #2196f3;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        .etkinlik-quiz-item button {
+            padding: 5px 10px;
+            font-size: 0.9rem;
+            background-color: #32cd32;
+        }
+        .etkinlik-quiz-item button:hover {
+            background-color: #228b22;
+        }
+        .etkinlik-footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #2196f3;
+            color: white;
+            border-radius: 0 0 10px 10px;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes slideIn {
+            from { transform: translateY(-20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        /* Market Tab Styles (Adapted from Admin Koleji) */
+        .catalog-search {
+            margin-bottom: 20px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .catalog-buttons {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .category-btn {
+            background-color: #fd7e14;
+            color: white;
+            padding: 8px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .category-btn:hover {
+            background-color: #e06c00;
+        }
+        .category-btn.active {
+            background-color: #e06c00;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        }
+        .dashboard-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 15px;
+        }
+        .dark-mode .dashboard-card {
+            background-color: #4A5568;
+        }
+        @media (max-width: 768px) {
+            .catalog-search, .catalog-buttons {
+                flex-direction: column;
+            }
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+            .chatbot-container {
+                width: 90%;
+                right: 5%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Ana İçerik -->
+    <div class="ana-icerik">
+        <div class="panel-container">
+            <!-- Başlık Bölümü -->
+            <div class="header">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <img src="https://via.placeholder.com/40" alt="Demo Koleji Logosu">
+                    <h1>Demo Koleji - Eğitim Platformu</h1>
+                </div>
+                <div class="header-nav">
+                    <a href="#" id="ana-sayfa-link">Ana Sayfa</a>
+                    <a href="#" onclick="alert('Giriş yapılıyor...')">Giriş</a>
+                    <a href="#" onclick="alert('Üyelik sayfasına yönlendiriliyorsunuz...')">Üyelik</a>
+                </div>
+                <div class="status-buttons">
+                    <button class="status-button" onclick="alert('Durum 1 güncellendi!')">Durum Güncelle 1</button>
+                    <button class="status-button" onclick="alert('Durum 2 güncellendi!')">Durum Güncelle 2</button>
+                    <button class="status-button" onclick="alert('Durum 3 güncellendi!')">Durum Güncelle 3</button>
+                </div>
+            </div>
+
+            <!-- Panel İçeriği -->
+            <div class="panel-content">
+                <!-- Sekmeler -->
+                <div class="tabs">
+                    <button class="tab-button ana-sayfa" onclick="openTab('ana-sayfa')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 10v12h8v-6h4v6h8V10L12 2z"/></svg>
+                        Ana Sayfa
+                    </button>
+                    <button class="tab-button pdf-fasikuller" onclick="openTab('pdf-fasikuller')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M6 2h12a2 2 0 012 2v16a2 2 0 01-2 2H6a2 2 0 01-2-2V4a2 2 0 012-2zm2 4v4h8V6H8zm0 6v6h8v-6H8z"/></svg>
+                        PDF Fasiküller
+                    </button>
+                    <button class="tab-button kitaplik" onclick="openTab('kitaplik')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M4 2h16a2 2 0 012 2v16a2 2 0 01-2 2H4a2 2 0 01-2-2V4a2 2 0 012-2zm2 4v12h12V6H6z"/></svg>
+                        Dijital Kitaplık
+                    </button>
+                    <button class="tab-button videolar" onclick="openTab('videolar')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18a2 2 0 012 2v14a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2zm4 6v6l6-3-6-3z"/></svg>
+                        Eğitim Videoları
+                    </button>
+                    <button class="tab-button quizler" onclick="openTab('quizler')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a10 10 0 100 20 10 10 0 000-20zm-1 14h-2v-2h2v2zm2-4h-4V6h4v6z"/></svg>
+                        Quizler
+                    </button>
+                    <button class="tab-button market" onclick="openTab('market')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M3 3h18a2 2 0 012 2v16a2 2 0 01-2 2H3a2 2 0 01-2-2V5a2 2 0 012-2zm4 12h2v2H7v-2zm4 0h2v2h-2v-2zm4 0h2v2h-2v-2z"/></svg>
+                        Market
+                    </button>
+                    <button class="tab-button ogretmen-paneli" onclick="openTab('ogretmen-paneli')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.8 0 5-2.2 5-5s-2.2-5-5-5-5 2.2-5 5 2.2 5 5 5zm0 2c-3.3 0-10 1.7-10 5v2h20v-2c0-3.3-6.7-5-10-5z"/></svg>
+                        Öğretmen Paneli
+                    </button>
+                    <button class="tab-button etkinlik-atolyem" onclick="openTab('etkinlik-atolyem')">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2L2 10v12h8v-6h4v6h8V10L12 2zM8 15H6v-2h2v2zm5 0h-2v-2h2v2zm5 0h-2v-2h2v2z"/></svg>
+                        Etkinlik Atölyem
+                    </button>
+                </div>
+
+                <!-- Ana Sayfa Sekmesi -->
+                <div id="ana-sayfa" class="tab-content active">
+                    <h2>Ana Sayfa</h2>
+                    <p>Demo Koleji Eğitim Platformuna hoş geldiniz! Öğretmen paneli ve etkinlik atölyesi ile eğitimde fark yaratın.</p>
+                    <h3>Bizden Haberler</h3>
+                    <div class="content-grid">
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Haber+1" alt="Haber 1">
+                            <h4>Yeni Eğitim Programı</h4>
+                            <p>2025 eğitim yılı için yenilikçi programlarımız hazır!</p>
+                        </div>
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Haber+2" alt="Haber 2">
+                            <h4>Öğrenci Başarıları</h4>
+                            <p>Öğrencilerimiz ulusal yarışmada ödüller kazandı!</p>
+                        </div>
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Haber+3" alt="Haber 3">
+                            <h4>Atölye Etkinlikleri</h4>
+                            <p>Yeni matematik atölyelerimiz başladı!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- PDF Fasiküller Sekmesi -->
+                <div id="pdf-fasikuller" class="tab-content">
+                    <h2>PDF Fasiküller</h2>
+                    <div class="content-grid" id="pdf-fasikuller-content">
+                        <div class="content-card" onclick="showPDF('1')">
+                            <img src="https://via.placeholder.com/250x150?text=Matematik" alt="Matematik Fasikülü">
+                            <h4>Matematik Fasikülü</h4>
+                            <p>7. Sınıf - Ünite 1</p>
+                        </div>
+                        <div class="content-card" onclick="showPDF('2')">
+                            <img src="https://via.placeholder.com/250x150?text=Fen" alt="Fen Fasikülü">
+                            <h4>Fen Fasikülü</h4>
+                            <p>8. Sınıf - Ünite 2</p>
+                        </div>
+                    </div>
+                    <div id="pdf-viewer-1" class="pdf-viewer">
+                        <iframe src="https://via.placeholder.com/800x600?text=Matematik+PDF" title="Matematik Fasikülü"></iframe>
+                    </div>
+                    <div id="pdf-viewer-2" class="pdf-viewer">
+                        <iframe src="https://via.placeholder.com/800x600?text=Fen+PDF" title="Fen Fasikülü"></iframe>
+                    </div>
+                </div>
+
+                <!-- Dijital Kitaplık Sekmesi -->
+                <div id="kitaplik" class="tab-content">
+                    <h2>Dijital Kitaplık</h2>
+                    <div class="content-grid">
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Matematik+Kitabı" alt="Matematik Kitabı">
+                            <h4>Matematik Kitabı</h4>
+                            <p>MEB 7. Sınıf Ders Kitabı</p>
+                        </div>
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Türkçe+Kitabı" alt="Türkçe Kitabı">
+                            <h4>Türkçe Kitabı</h4>
+                            <p>MEB 6. Sınıf Çalışma Kitabı</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Eğitim Videoları Sekmesi -->
+                <div id="videolar" class="tab-content">
+                    <h2>Eğitim Videoları</h2>
+                    <div class="content-grid">
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Matematik+Dersi" alt="Matematik Dersi">
+                            <h4>Matematik Dersi</h4>
+                            <p>Kesirler ve Oran</p>
+                        </div>
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Fen+Dersi" alt="Fen Dersi">
+                            <h4>Fen Dersi</h4>
+                            <p>Hücre ve Organeller</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quizler Sekmesi -->
+                <div id="quizler" class="tab-content">
+                    <h2>Quizler</h2>
+                    <div class="content-grid">
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Matematik+Quiz" alt="Matematik Quiz">
+                            <h4>Matematik Quiz</h4>
+                            <p>7. Sınıf - 10 Soru</p>
+                        </div>
+                        <div class="content-card">
+                            <img src="https://via.placeholder.com/250x150?text=Fen+Quiz" alt="Fen Quiz">
+                            <h4>Fen Quiz</h4>
+                            <p>8. Sınıf - 15 Soru</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Market Sekmesi (Integrated Catalog and Sipariş Yönetimi) -->
+                <div id="market" class="tab-content">
+                    <h2>Market</h2>
+                    <div class="catalog-search">
+                        <input type="text" id="catalog-search" placeholder="Ürün ara..." oninput="updateCatalogGrid()">
+                        <select id="catalog-filter" onchange="updateCatalogGrid()">
+                            <option value="all">Tüm Kategoriler</option>
+                            <option value="kirtasiye">Kırtasiye</option>
+                            <option value="kitap">Kitap ve Materyaller</option>
+                            <option value="ekipman">Okul Ekipmanları</option>
+                            <option value="matbaa">Okul Matbaa Ürünleri</option>
+                        </select>
+                    </div>
+                    <div class="catalog-buttons">
+                        <button class="category-btn active" onclick="filterCatalog('all')">Tüm Kategoriler</button>
+                        <button class="category-btn" onclick="filterCatalog('kirtasiye')">Kırtasiye</button>
+                        <button class="category-btn" onclick="filterCatalog('kitap')">Kitap ve Materyaller</button>
+                        <button class="category-btn" onclick="filterCatalog('ekipman')">Okul Ekipmanları</button>
+                        <button class="category-btn" onclick="filterCatalog('matbaa')">Okul Matbaa Ürünleri</button>
+                    </div>
+                    <div class="content-grid" id="katalog-grid"></div>
+                    <h3>Sipariş Yönetimi</h3>
+                    <div class="dashboard-card">
+                        <h4>Siparişlerim</h4>
+                        <table class="product-table">
+                            <thead>
+                                <tr>
+                                    <th>Ürün</th>
+                                    <th>Durum</th>
+                                    <th>Tarih</th>
+                                </tr>
+                            </thead>
+                            <tbody id="orders-table"></tbody>
+                        </table>
+                    </div>
+                    <div class="summary" id="sepet-ozet">
+                        <p>Sepetinizde <span id="urun-sayisi">0</span> ürün var.</p>
+                        <p>Toplam Tutar: <span id="toplam-tutar" class="total">₺0</span></p>
+                        <p>İndirim: <span id="indirim-tutar" class="discount">₺0</span></p>
+                        <div class="action-buttons">
+                            <button onclick="sepetiOnayla()">Sepeti Onayla</button>
+                            <button onclick="sepetiTemizle()">Sepeti Temizle</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Öğretmen Paneli Sekmesi -->
+                <div id="ogretmen-paneli" class="tab-content">
+                    <h2>Öğretmen Paneli</h2>
+                    <div class="form-group">
+                        <label for="rapor-indir">Rapor İndir</label>
+                        <select id="rapor-indir">
+                            <option value="haftalik">Haftalık Rapor</option>
+                            <option value="aylik">Aylık Rapor</option>
+                            <option value="donem">Dönem Raporu</option>
+                        </select>
+                        <button class="rapor-indir-btn" onclick="alert('Rapor indiriliyor...')">Rapor İndir</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="sinif-ekle">Sınıf Ekle</label>
+                        <input type="text" id="sinif-ekle" placeholder="Sınıf adı girin...">
+                        <button class="sinif-ekle-btn" onclick="alert('Sınıf eklendi!')">Sınıf Ekle</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="kazanım-ekle">Kazanımlar</label>
+                        <textarea id="kazanım-ekle" placeholder="Kazanımları girin..."></textarea>
+                        <button class="kazanım-ekle-btn" onclick="alert('Kazanımlar eklendi!')">Kazanımları Ekle</button>
+                    </div>
+                    <div class="form-group">
+                        <label for="sinif-goruntule">Sınıf Görüntüle</label>
+                        <select id="sinif-goruntule">
+                            <option value="7A">7A</option>
+                            <option value="7B">7B</option>
+                            <option value="8A">8A</option>
+                        </select>
+                        <button class="goruntule-btn" onclick="alert('Sınıf bilgileri görüntüleniyor...')">Görüntüle</button>
+                    </div>
+                </div>
+
+                <!-- Etkinlik Atölyem Sekmesi -->
+                <div id="etkinlik-atolyem" class="tab-content">
+                    <h2>Etkinlik Atölyem</h2>
+                    <div class="etkinlik-section active" id="etkinlik-1">
+                        <h3>Matematik Atölyesi</h3>
+                        <div class="etkinlik-row">
+                            <div class="etkinlik-video-box">
+                                <iframe src="https://www.youtube.com/embed/dQw4w9WgXcQ" title="Matematik Videosu"></iframe>
+                            </div>
+                            <div class="etkinlik-text-box">
+                                <h4>Kesirler</h4>
+                                <p>Bu atölyede kesirler ve oranlar üzerine interaktif etkinlikler yapacağız.</p>
+                            </div>
+                        </div>
+                        <div class="etkinlik-image-text-quiz-box">
+                            <img src="https://via.placeholder.com/200x150?text=Kesirler" alt="Kesirler Görseli">
+                            <div class="text">
+                                <h4>Etkileşimli Soru</h4>
+                                <p>1/2 + 1/4 işleminin sonucu nedir?</p>
+                            </div>
+                        </div>
+                        <div class="etkinlik-quiz-box">
+                            <h4>Test Soruları</h4>
+                            <div class="etkinlik-quiz-item">
+                                <p>1/3 + 1/6 = ?</p>
+                                <button onclick="alert('Cevap: 1/2')">Cevabı Göster</button>
+                            </div>
+                            <div class="etkinlik-quiz-item">
+                                <p>2/5 + 3/10 = ?</p>
+                                <button onclick="alert('Cevap: 7/10')">Cevabı Göster</button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="etkinlik-footer">
+                        <p>Demo Koleji © 2025</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Karanlık Mod Toggle -->
+    <button id="dark-mode-toggle" onclick="toggleDarkMode()"><i class="fas fa-moon"></i></button>
+
+    <!-- Chatbot -->
+    <div class="chatbot-container" id="chatbot">
+        <div class="chatbot-header">Eğitim Asistanı</div>
+        <div class="chatbot-body" id="chatbot-body">
+            <div class="chatbot-message bot">Merhaba! Demo Koleji Eğitim Platformu’nda size nasıl yardımcı olabilirim?</div>
+        </div>
+        <div class="chatbot-input">
+            <input type="text" id="chatbot-input" placeholder="Mesaj yaz...">
+            <button onclick="sendMessage()">Gönder</button>
+        </div>
+    </div>
+
+    <script>
+        // Ürün Verileri
+        const urunler = [
+            { id: 1, ad: 'A4 Fotokopi Kağıdı', kategori: 'kirtasiye', fiyat: 225, indirimliFiyat: 200, gorsel: 'paper.jpg', description: '80gr, 500 sayfa/paket, 5 paket', rating: 4.8 },
+            { id: 2, ad: 'Jel Kalem Seti', kategori: 'kirtasiye', fiyat: 50, indirimliFiyat: 45, gorsel: 'pens.jpg', description: '12 adet, renkli jel mürekkepli', rating: 4.7 },
+            { id: 3, ad: 'MEB Matematik Ders Kitabı', kategori: 'kitap', fiyat: 80, indirimliFiyat: 75, gorsel: 'math-book.jpg', description: '7. sınıf, 2023 baskı', rating: 4.8 },
+            { id: 4, ad: 'Mikroskop', kategori: 'ekipman', fiyat: 1500, indirimliFiyat: 1400, gorsel: 'microscope.jpg', description: '40x-1000x büyütme, LED ışık', rating: 4.9 },
+            { id: 5, ad: 'Öğrenci Sertifikası', kategori: 'matbaa', fiyat: 200, indirimliFiyat: 180, gorsel: 'certificate.jpg', description: 'A4, 100 adet, özelleştirilebilir', rating: 4.5 }
+        ];
+
+        // Sepet ve Sipariş Verileri
+        let sepet = [];
+        let ordersData = [
+            { id: 1, item: 'A4 Fotokopi Kağıdı', status: 'Bekliyor', date: '2025-05-10' },
+            { id: 2, item: 'Jel Kalem Seti', status: 'Bekliyor', date: '2025-05-12' }
+        ];
+
+        // Sekme Yönetimi
+        function openTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            document.querySelector(`.tab-button[onclick="openTab('${tabName}')"]`).classList.add('active');
+            if (tabName === 'market') {
+                updateCatalogGrid();
+                updateOrdersTable();
+                updateSepetOzet();
+            }
+        }
+
+        // PDF Görüntüleme
+        function showPDF(id) {
+            document.querySelectorAll('.pdf-viewer').forEach(viewer => viewer.classList.remove('active'));
+            document.getElementById(`pdf-viewer-${id}`).classList.add('active');
+        }
+
+        // Market Katalog Yönetimi
+        let currentCategory = 'all';
+
+        function filterCatalog(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector(`.category-btn[onclick="filterCatalog('${category}')"]`).classList.add('active');
+            document.getElementById('catalog-filter').value = category;
+            updateCatalogGrid();
+        }
+
+        function updateCatalogGrid() {
+            const grid = document.getElementById('katalog-grid');
+            const filter = document.getElementById('catalog-filter').value || currentCategory;
+            const search = document.getElementById('catalog-search').value.toLowerCase() || '';
+            if (!grid) return;
+
+            grid.innerHTML = '';
+            let filteredContent = filter === 'all' ? urunler : urunler.filter(item => item.kategori === filter);
+            if (search) {
+                filteredContent = filteredContent.filter(item => item.ad.toLowerCase().includes(search));
+            }
+            if (filteredContent.length === 0) {
+                grid.innerHTML = '<p>Aradığınız kriterlere uygun ürün bulunamadı.</p>';
+                return;
+            }
+            filteredContent.forEach(item => {
+                const card = document.createElement('div');
+                card.className = 'content-card';
+                card.innerHTML = `
+                    <img src="${item.gorsel || 'https://via.placeholder.com/250x150?text=Ürün'}" alt="${item.ad}">
+                    <h4>${item.ad}</h4>
+                    <p>${item.description}</p>
+                    <p><strong>₺${item.indirimliFiyat}</strong> <s>₺${item.fiyat}</s> | ${item.rating} ★</p>
+                    <button onclick="ekleSepete(${item.id})">Sepete Ekle</button>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Sipariş Yönetimi
+        function updateOrdersTable() {
+            const tableBody = document.getElementById('orders-table');
+            if (!tableBody) return;
+
+            tableBody.innerHTML = '';
+            ordersData.forEach(order => {
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${order.item}</td>
+                    <td>${order.status}</td>
+                    <td>${order.date}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+        }
+
+        // Sepet Yönetimi
+        function ekleSepete(urunId) {
+            const urun = urunler.find(u => u.id === urunId);
+            if (!urun) return;
+            const sepetUrun = sepet.find(s => s.urun.id === urunId);
+            if (sepetUrun) {
+                sepetUrun.miktar++;
+            } else {
+                sepet.push({ urun, miktar: 1 });
+            }
+            updateSepetOzet();
+            alert(`${urun.ad} sepete eklendi!`);
+        }
+
+        function updateSepetOzet() {
+            const sepetOzet = document.getElementById('sepet-ozet');
+            const urunSayisi = sepet.reduce((toplam, item) => toplam + item.miktar, 0);
+            const toplamTutar = sepet.reduce((toplam, item) => toplam + item.urun.indirimliFiyat * item.miktar, 0);
+            const indirim = sepet.reduce((toplam, item) => toplam + (item.urun.fiyat - item.urun.indirimliFiyat) * item.miktar, 0);
+
+            sepetOzet.innerHTML = `
+                <p>Sepetinizde <span id="urun-sayisi">${urunSayisi}</span> ürün var.</p>
+                <p>Toplam Tutar: <span id="toplam-tutar" class="total">₺${toplamTutar}</span></p>
+                <p>İndirim: <span id="indirim-tutar" class="discount">₺${indirim}</span></p>
+                <div class="action-buttons">
+                    <button onclick="sepetiOnayla()">Sepeti Onayla</button>
+                    <button onclick="sepetiTemizle()">Sepeti Temizle</button>
+                </div>
+            `;
+        }
+
+        function sepetiOnayla() {
+            if (sepet.length === 0) {
+                alert('Sepetiniz boş!');
+                return;
+            }
+            sepet.forEach(item => {
+                ordersData.push({
+                    id: ordersData.length + 1,
+                    item: item.urun.ad,
+                    status: 'Bekliyor',
+                    date: new Date().toISOString().split('T')[0]
+                });
+            });
+            alert('Siparişiniz onaylandı!');
+            sepet = [];
+            updateSepetOzet();
+            updateOrdersTable();
+        }
+
+        function sepetiTemizle() {
+            sepet = [];
+            updateSepetOzet();
+            alert('Sepet temizlendi!');
+        }
+
+        // Chatbot
+        function sendMessage() {
+            const input = document.getElementById('chatbot-input');
+            const body = document.getElementById('chatbot-body');
+            if (!input.value.trim()) return;
+
+            const userMsg = document.createElement('div');
+            userMsg.className = 'chatbot-message user';
+            userMsg.textContent = input.value;
+            body.appendChild(userMsg);
+
+            let response = 'Mesajınızı aldım! Daha fazla bilgi için lütfen detay verin.';
+            if (input.value.toLowerCase().includes('market') || input.value.toLowerCase().includes('ürün')) {
+                response = 'Market sekmesinde ürünleri arayabilir ve sepete ekleyebilirsiniz!';
+            } else if (input.value.toLowerCase().includes('sepet') || input.value.toLowerCase().includes('sipariş')) {
+                response = 'Market sekmesindeki Sipariş Yönetimi bölümünde sepetinizi ve geçmiş siparişlerinizi yönetebilirsiniz.';
+            } else if (input.value.toLowerCase().includes('pdf') || input.value.toLowerCase().includes('fasikül')) {
+                response = 'PDF Fasiküller sekmesinde eğitim materyallerini bulabilirsiniz.';
+            }
+            const botMsg = document.createElement('div');
+            botMsg.className = 'chatbot-message bot';
+            botMsg.textContent = response;
+            body.appendChild(botMsg);
+
+            body.scrollTop = body.scrollHeight;
+            input.value = '';
+        }
+
+        // Karanlık Mod
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
+            const icon = document.querySelector('#dark-mode-toggle i');
+            icon.className = document.body.classList.contains('dark-mode') ? 'fas fa-sun' : 'fas fa-moon';
+        }
+
+        // Başlangıç
+        document.addEventListener('DOMContentLoaded', () => {
+            openTab('ana-sayfa');
+            updateCatalogGrid();
+            updateOrdersTable();
+            updateSepetOzet();
+            document.getElementById('chatbot').style.display = 'flex';
+        });
+    </script>
+</body>
+</html> bu koddaki sayfadan gömme kodu ve barkod olustur
